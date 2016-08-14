@@ -1,0 +1,29 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath "com.neenbedankt.gradle.plugins:android-apt:1.8"
+        classpath 'com.squareup.sqldelight:gradle-plugin:0.1.2'
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.1.0'
+        classpath "io.realm:realm-gradle-plugin:1.1.1"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://www.jitpack.io" }
+        maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
+    }
+}

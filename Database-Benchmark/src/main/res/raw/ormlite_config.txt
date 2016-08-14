@@ -1,0 +1,20 @@
+# --table-start--
+dataClass=com.littleinc.orm_benchmark.ormlite.Message
+tableName=message
+# --table-fields-start--
+# --field-start--
+fieldName=intField
+id=true
+# --field-end--
+# --field-start--
+fieldName=longField
+# --field-end--
+# --field-start--
+fieldName=doubleField
+# --field-end--
+# --field-start--
+fieldName=stringField
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

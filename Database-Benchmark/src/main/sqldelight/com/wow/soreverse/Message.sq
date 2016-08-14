@@ -1,0 +1,13 @@
+CREATE TABLE message (
+  id LONG NOT NULL PRIMARY KEY AUTOINCREMENT,
+  longField LONG NOT NULL,
+  commandId LONG NOT NULL,
+  doubleField DOUBLE NOT NULL,
+  createdAt INT NOT NULL,
+  stringField STRING,
+  senderId LONG NOT NULL,
+  channelId LONG NOT NULL
+);
+
+select_all:
+SELECT * FROM message;
