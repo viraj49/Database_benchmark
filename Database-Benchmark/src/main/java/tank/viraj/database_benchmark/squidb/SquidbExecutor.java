@@ -58,6 +58,39 @@ public class SquidbExecutor implements BenchmarkExecutable {
     }
 
     @Override
+    public long writeSingleData() throws SQLException {
+        List<Message> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.setIntField(i);
+            newMessage.setLongField(Data.longData + 1);
+            newMessage.setDoubleField(Data.doubleData + 1);
+            newMessage.setStringField(Data.stringData + "update");
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+        myDatabase.beginTransaction();
+
+        try {
+            for (Message message : messages) {
+                myDatabase.persist(message);
+            }
+            myDatabase.setTransactionSuccessful();
+        } finally {
+            myDatabase.endTransaction();
+        }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        return 0;
+    }
+
+    @Override
     public long readSingleData() throws SQLException {
         long start = System.nanoTime();
 
@@ -105,6 +138,16 @@ public class SquidbExecutor implements BenchmarkExecutable {
             double doubleField = message.getDoubleField();
             String stringField = message.getStringField();
         }
+
+        return System.nanoTime() - start;
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        SquidCursor<Message> query = myDatabase.query(Message.class, Query.select());
+        int count = query.getCount();
 
         return System.nanoTime() - start;
     }

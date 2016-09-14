@@ -20,7 +20,6 @@ import tank.viraj.database_benchmark.ormlite.ORMLiteExecutor;
 import tank.viraj.database_benchmark.realm.RealmExecutor;
 import tank.viraj.database_benchmark.requery.RequeryExecutor;
 import tank.viraj.database_benchmark.sqlite.SQLiteExecutor;
-import tank.viraj.database_benchmark.sqliteoptimized.OptimizedSQLiteExecutor;
 import tank.viraj.database_benchmark.squeaky.SqueakyExecutor;
 import tank.viraj.database_benchmark.squeakyfinal.SqueakyFinalExecutor;
 import tank.viraj.database_benchmark.squidb.SquidbExecutor;
@@ -32,7 +31,7 @@ import tank.viraj.database_benchmark.sugarorm.SugarOrmExecutor;
  */
 public class DatabaseBenchmarksTask extends Task {
     private static final boolean USE_IN_MEMORY_DB = false;
-    private static final int NUM_ITERATIONS = 3;
+    private static final int NUM_ITERATIONS = 1;
 
     private BenchmarkExecutable[] ormList = new BenchmarkExecutable[]{
             new CupboardExecutor(),
@@ -45,7 +44,6 @@ public class DatabaseBenchmarksTask extends Task {
             new SqueakyFinalExecutor(),
             new SquidbExecutor(),
             new SQLiteExecutor(),
-            new OptimizedSQLiteExecutor(),
             new ORMLiteExecutor()
     };
 
@@ -56,9 +54,12 @@ public class DatabaseBenchmarksTask extends Task {
     private enum BenchmarkTask {
         CREATE_DB,
         WRITE_WHOLE_DATA,
+        WRITE_SINGLE_DATA,
+        UPDATE_DATA,
         READ_SINGLE_DATA,
         READ_BATCH_DATA,
         READ_WHOLE_DATA,
+        COUNT_DATA,
         DROP_DB
     }
 
@@ -83,6 +84,12 @@ public class DatabaseBenchmarksTask extends Task {
                             case WRITE_WHOLE_DATA:
                                 result = item.writeWholeData();
                                 break;
+                            case WRITE_SINGLE_DATA:
+                                result = item.writeSingleData();
+                                break;
+                            case UPDATE_DATA:
+                                result = item.updateData();
+                                break;
                             case READ_WHOLE_DATA:
                                 result = item.readWholeData();
                                 break;
@@ -91,6 +98,9 @@ public class DatabaseBenchmarksTask extends Task {
                                 break;
                             case READ_BATCH_DATA:
                                 result = item.readBatchData();
+                                break;
+                            case COUNT_DATA:
+                                result = item.countData();
                                 break;
                             case DROP_DB:
                                 result = item.dropDb();
@@ -103,6 +113,7 @@ public class DatabaseBenchmarksTask extends Task {
                     addProfilerResult(item.getOrmName(), task, result);
                 }
                 sendStatusUpdate("Iteration: " + (i + 1) + "/" + item.getOrmName() + " complete");
+                Thread.sleep(200);
             }
         }
         buildResultString();
@@ -127,9 +138,10 @@ public class DatabaseBenchmarksTask extends Task {
         StringBuilder sb = new StringBuilder();
 
         BenchmarkTask[] bTasks = new BenchmarkTask[]{BenchmarkTask.CREATE_DB,
-                BenchmarkTask.WRITE_WHOLE_DATA, BenchmarkTask.READ_WHOLE_DATA,
+                BenchmarkTask.WRITE_WHOLE_DATA, BenchmarkTask.WRITE_SINGLE_DATA,
+                BenchmarkTask.UPDATE_DATA, BenchmarkTask.READ_WHOLE_DATA,
                 BenchmarkTask.READ_SINGLE_DATA, BenchmarkTask.READ_BATCH_DATA,
-                BenchmarkTask.DROP_DB};
+                BenchmarkTask.COUNT_DATA, BenchmarkTask.DROP_DB};
         for (BenchmarkTask bTask : bTasks) {
             sb.append("<b>").append(bTask.name()).append("</b>").append("<br/>");
             Map<String, Long> stringLongMap = benchmarkResults.get(bTask.name());

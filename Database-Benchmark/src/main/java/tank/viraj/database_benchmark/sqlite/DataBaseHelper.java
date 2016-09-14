@@ -6,10 +6,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
     private static int DB_VERSION = 1;
-    private static String DB_NAME = "sqlite_db";
+    private static String DB_NAME = "sqlite.db";
 
     public DataBaseHelper(Context context, boolean isInMemory) {
-        super(context, (isInMemory ? null : DB_NAME), null, DB_VERSION);
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override

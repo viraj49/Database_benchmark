@@ -21,11 +21,17 @@ public interface BenchmarkExecutable {
 
     long writeWholeData() throws SQLException;
 
+    long writeSingleData() throws SQLException;
+
+    long updateData() throws SQLException;
+
     long readSingleData() throws SQLException;
 
     long readBatchData() throws SQLException;
 
     long readWholeData() throws SQLException;
+
+    long countData() throws SQLException;
 
     long dropDb() throws SQLException;
 }

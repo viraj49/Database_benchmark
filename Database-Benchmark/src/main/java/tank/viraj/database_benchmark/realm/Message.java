@@ -10,7 +10,6 @@ import io.realm.annotations.PrimaryKey;
  */
 public class Message extends RealmObject {
     @PrimaryKey
-    @Index
     private int intField;
     private long longField;
     private double doubleField;

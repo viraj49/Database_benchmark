@@ -28,17 +28,14 @@ public class RealmExecutor implements BenchmarkExecutable {
     @Override
     public long createDbStructure() throws SQLException {
         long start = System.nanoTime();
-
         RealmConfiguration realmConfig = new RealmConfiguration.Builder(mContext).build();
-        Realm.deleteRealm(realmConfig);
         Realm.setDefaultConfiguration(realmConfig);
-
         return (System.nanoTime() - start);
     }
 
     @Override
     public long writeWholeData() throws SQLException {
-        List<Message> messages = new ArrayList<>(NUM_MESSAGE_INSERTS);
+        final List<Message> messages = new ArrayList<>(NUM_MESSAGE_INSERTS);
         for (int i = 0; i < NUM_MESSAGE_INSERTS; i++) {
             Message newMessage = new Message();
             newMessage.setIntField(i);
@@ -50,10 +47,67 @@ public class RealmExecutor implements BenchmarkExecutable {
         }
 
         long start = System.nanoTime();
+
         realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         try {
             realm.insert(messages);
+        } finally {
+            realm.commitTransaction();
+        }
+        realm.close();
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long writeSingleData() throws SQLException {
+        List<Message> messages = new ArrayList<>(NUM_MESSAGE_INSERTS);
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.setIntField(i);
+            newMessage.setLongField(Data.longData);
+            newMessage.setDoubleField(Data.doubleData);
+            newMessage.setStringField(Data.stringData);
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        try {
+            for (Message message : messages) {
+                realm.insert(message);
+            }
+        } finally {
+            realm.commitTransaction();
+        }
+        realm.close();
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        List<Message> messages = new ArrayList<>(NUM_MESSAGE_INSERTS);
+        for (int i = 0; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.setIntField(i);
+            newMessage.setLongField(Data.longData + 1);
+            newMessage.setDoubleField(Data.doubleData + 1);
+            newMessage.setStringField(Data.stringData + "update");
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        try {
+            realm.insertOrUpdate(messages);
         } finally {
             realm.commitTransaction();
         }
@@ -108,6 +162,17 @@ public class RealmExecutor implements BenchmarkExecutable {
             double doubleField = message.getDoubleField();
             String stringField = message.getStringField();
         }
+        realm.close();
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        realm = Realm.getDefaultInstance();
+        long count = realm.where(Message.class).count();
         realm.close();
 
         return (System.nanoTime() - start);

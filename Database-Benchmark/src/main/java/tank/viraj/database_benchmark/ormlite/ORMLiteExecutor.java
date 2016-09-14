@@ -47,7 +47,63 @@ public class ORMLiteExecutor implements BenchmarkExecutable {
         db.beginTransaction();
         try {
             for (Message message : messages) {
-                Message.getDao().createOrUpdate(message);
+                Message.getDao().create(message);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long writeSingleData() throws SQLException {
+        List<Message> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.setIntField(i);
+            newMessage.setLongField(Data.longData);
+            newMessage.setDoubleField(Data.doubleData);
+            newMessage.setStringField(Data.stringData);
+
+            messages.add(newMessage);
+        }
+        long start = System.nanoTime();
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        db.beginTransaction();
+        try {
+            for (Message message : messages) {
+                Message.getDao().create(message);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        List<Message> messages = new LinkedList<>();
+        for (int i = 0; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.setIntField(i);
+            newMessage.setLongField(Data.longData + 1);
+            newMessage.setDoubleField(Data.doubleData + 1);
+            newMessage.setStringField(Data.stringData + "update");
+
+            messages.add(newMessage);
+        }
+        long start = System.nanoTime();
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        db.beginTransaction();
+        try {
+            for (Message message : messages) {
+                Message.getDao().update(message);
             }
 
             db.setTransactionSuccessful();
@@ -103,6 +159,15 @@ public class ORMLiteExecutor implements BenchmarkExecutable {
             double doubleField = message.getDoubleField();
             String stringField = message.getStringField();
         }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        int count = mHelper.getDao(Message.class).queryForAll().size();
 
         return (System.nanoTime() - start);
     }

@@ -1,40 +1,31 @@
 package tank.viraj.database_benchmark.sqlite;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
 public class Message {
-    public static final String TABLE_NAME = "message";
-    public static final String INT_FIELD = "int_filed";
-    public static final String LONG_FIELD = "long_filed";
-    public static final String DOUBLE_FIELD = "double_filed";
-    public static final String STRING_FIELD = "string_filed";
+    static final String TABLE_NAME = "message";
+    static final String INT_FIELD = "int_filed";
+    static final String LONG_FIELD = "long_filed";
+    static final String DOUBLE_FIELD = "double_filed";
+    static final String STRING_FIELD = "string_filed";
 
     public int intField;
     public long longField;
     public double doubleField;
     public String stringField;
 
-    public static final String[] PROJECTION = new String[]{INT_FIELD, LONG_FIELD, DOUBLE_FIELD, STRING_FIELD};
+    static final String[] PROJECTION = new String[]{INT_FIELD, LONG_FIELD, DOUBLE_FIELD, STRING_FIELD};
 
-    public static void createTable(SQLiteOpenHelper helper) {
-        SQLiteDatabase db = helper.getWritableDatabase();
+    static final String CreateTable =
+            "CREATE TABLE " + TABLE_NAME + " (" +
+                    BaseColumns._ID + " INTEGER PRIMARY KEY ," +
+                    INT_FIELD + " INTEGER, " +
+                    LONG_FIELD + " REAL, " +
+                    DOUBLE_FIELD + " REAL, " +
+                    STRING_FIELD + " TEXT );";
 
-        db.execSQL("CREATE TABLE '" + TABLE_NAME +
-                "' ('" + BaseColumns._ID + "' INTEGER PRIMARY KEY AUTOINCREMENT, '" +
-                INT_FIELD + "' INTEGER, '" +
-                LONG_FIELD + "' REAL, '" +
-                DOUBLE_FIELD + "' REAL, '" +
-                STRING_FIELD + "' TEXT );");
-    }
-
-    public static void dropTable(SQLiteOpenHelper helper) {
-        SQLiteDatabase db = helper.getWritableDatabase();
-
-        db.execSQL("DROP TABLE '" + TABLE_NAME + "';");
-    }
+    static final String DropTable = "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
 
     public void setIntField(int intField) {
         this.intField = intField;

@@ -57,6 +57,16 @@ public class SugarOrmExecutor implements BenchmarkExecutable {
     }
 
     @Override
+    public long writeSingleData() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        return 0;
+    }
+
+    @Override
     public long readSingleData() throws SQLException {
         //long start = System.nanoTime();
 
@@ -121,6 +131,11 @@ public class SugarOrmExecutor implements BenchmarkExecutable {
 //        return (System.nanoTime() - start);
         /* TODO - find a way to query */
         return (-1);
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        return 0;
     }
 
     @Override

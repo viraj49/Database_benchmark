@@ -59,6 +59,61 @@ public class SqueakyFinalExecutor implements BenchmarkExecutable {
     }
 
     @Override
+    public long writeSingleData() throws SQLException {
+        List<Message> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message(i, Data.longData, Data.doubleData, Data.stringData);
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        db.beginTransaction();
+
+        try {
+            Dao messageDao = mHelper.getDao(Message.class);
+            for (Message message : messages) {
+                messageDao.create(message);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        List<tank.viraj.database_benchmark.squeaky.Message> messages = new LinkedList<>();
+        for (int i = 0; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            tank.viraj.database_benchmark.squeaky.Message newMessage = new tank.viraj.database_benchmark.squeaky.Message();
+            newMessage.intField = i;
+            newMessage.longField = Data.longData + 1;
+            newMessage.doubleField = Data.doubleData + 1;
+            newMessage.stringField = Data.stringData + "update";
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        db.beginTransaction();
+        try {
+            Dao messageDao = mHelper.getDao(tank.viraj.database_benchmark.squeaky.Message.class);
+            for (tank.viraj.database_benchmark.squeaky.Message message : messages) {
+                messageDao.update(message);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
     public long readSingleData() throws SQLException {
         long start = System.nanoTime();
 
@@ -95,6 +150,15 @@ public class SqueakyFinalExecutor implements BenchmarkExecutable {
             double doubleField = message.doubleField;
             String stringField = message.stringField;
         }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        int count = mHelper.getDao(Message.class).queryForAll().list().size();
 
         return (System.nanoTime() - start);
     }

@@ -67,6 +67,60 @@ public class DBFlowExecutor implements BenchmarkExecutable {
     }
 
     @Override
+    public long writeSingleData() throws SQLException {
+        final List<Message> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.intField = i;
+            newMessage.longField = Data.longData;
+            newMessage.doubleField = Data.doubleData;
+            newMessage.stringField = Data.stringData;
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        FlowManager.getDatabase(DatabaseModule.NAME).executeTransaction(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+                for (Message message : messages) {
+                    message.save();
+                }
+            }
+        });
+
+        return System.nanoTime() - start;
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        final List<Message> messages = new LinkedList<>();
+        for (int i = 0; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message();
+            newMessage.intField = i;
+            newMessage.longField = Data.longData + 1;
+            newMessage.doubleField = Data.doubleData + 1;
+            newMessage.stringField = Data.stringData + "update";
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        FlowManager.getDatabase(DatabaseModule.NAME).executeTransaction(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+                for (Message message : messages) {
+                    message.update();
+                }
+            }
+        });
+
+        return System.nanoTime() - start;
+    }
+
+    @Override
     public long readSingleData() throws SQLException {
         long start = System.nanoTime();
         for (int i = 0; i < NUM_MESSAGE_QUERY; i++) {
@@ -103,6 +157,15 @@ public class DBFlowExecutor implements BenchmarkExecutable {
             double doubleField = message.doubleField;
             String stringField = message.stringField;
         }
+        return System.nanoTime() - start;
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        int count = new Select().from(Message.class).queryList().size();
+
         return System.nanoTime() - start;
     }
 

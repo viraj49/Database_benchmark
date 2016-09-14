@@ -57,6 +57,33 @@ public class RequeryExecutor implements BenchmarkExecutable {
         userStore.runInTransaction(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
+                userStore.insert(messages);
+                return null;
+            }
+        });
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long writeSingleData() throws SQLException {
+        final List<MessageEntity> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            MessageEntity newMessage = new MessageEntity();
+            newMessage.intField = i;
+            newMessage.longField = Data.longData;
+            newMessage.doubleField = Data.doubleData;
+            newMessage.stringField = Data.stringData;
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        final EntityDataStore<Persistable> userStore = new EntityDataStore<>(mHelper.getConfiguration());
+        userStore.runInTransaction(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
                 for (Message message : messages) {
                     userStore.insert(message);
                 }
@@ -65,6 +92,34 @@ public class RequeryExecutor implements BenchmarkExecutable {
         });
 
         return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long updateData() throws SQLException {
+        final List<MessageEntity> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            MessageEntity newMessage = new MessageEntity();
+            newMessage.intField = i;
+            newMessage.longField = Data.longData + 1;
+            newMessage.doubleField = Data.doubleData + 1;
+            newMessage.stringField = Data.stringData + "update";
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+
+        final EntityDataStore<Persistable> userStore = new EntityDataStore<>(mHelper.getConfiguration());
+        userStore.runInTransaction(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                userStore.update(messages);
+                return null;
+            }
+        });
+
+        return (System.nanoTime() - start);
+
     }
 
     @Override
@@ -111,6 +166,16 @@ public class RequeryExecutor implements BenchmarkExecutable {
             double doubleField = message.doubleField;
             String stringField = message.stringField;
         }
+
+        return (System.nanoTime() - start);
+    }
+
+    @Override
+    public long countData() throws SQLException {
+        long start = System.nanoTime();
+
+        final EntityDataStore<Persistable> userStore = new EntityDataStore<>(mHelper.getConfiguration());
+        int count = userStore.select(Message.class).get().toList().size();
 
         return (System.nanoTime() - start);
     }

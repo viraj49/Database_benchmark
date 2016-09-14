@@ -72,6 +72,64 @@ public class GreenDaoExecutor implements BenchmarkExecutable {
     }
 
     @Override
+    public long writeSingleData() throws java.sql.SQLException {
+        final List<Message> messages = new LinkedList<>();
+        for (int i = NUM_MESSAGE_INSERTS; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message(null);
+            newMessage.setInt_field(i);
+            newMessage.setLong_field(Data.longData);
+            newMessage.setDouble_field(Data.doubleData);
+            newMessage.setString_field(Data.stringData);
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+        mDaoSession.runInTx(new Runnable() {
+            @Override
+            public void run() {
+                MessageDao messageDao = mDaoSession.getMessageDao();
+                for (Message message : messages) {
+                    messageDao.insertInTx(message);
+                }
+            }
+        });
+
+        if (USE_IDENTITY_SCOPE) {
+            mDaoSession.clear();
+        }
+        return System.nanoTime() - start;
+    }
+
+    @Override
+    public long updateData() throws java.sql.SQLException {
+        final List<Message> messages = new LinkedList<>();
+        for (int i = 0; i < (NUM_MESSAGE_INSERTS * 2); i++) {
+            Message newMessage = new Message(null);
+            newMessage.setInt_field(i);
+            newMessage.setLong_field(Data.longData + 1);
+            newMessage.setDouble_field(Data.doubleData + 1);
+            newMessage.setString_field(Data.stringData + "update");
+
+            messages.add(newMessage);
+        }
+
+        long start = System.nanoTime();
+        mDaoSession.runInTx(new Runnable() {
+            @Override
+            public void run() {
+                MessageDao messageDao = mDaoSession.getMessageDao();
+                messageDao.updateInTx(messages);
+            }
+        });
+
+        if (USE_IDENTITY_SCOPE) {
+            mDaoSession.clear();
+        }
+        return System.nanoTime() - start;
+    }
+
+    @Override
     public long readSingleData() throws SQLException {
         long start = System.nanoTime();
 
@@ -122,6 +180,15 @@ public class GreenDaoExecutor implements BenchmarkExecutable {
         if (USE_IDENTITY_SCOPE) {
             mDaoSession.clear();
         }
+
+        return System.nanoTime() - start;
+    }
+
+    @Override
+    public long countData() throws java.sql.SQLException {
+        long start = System.nanoTime();
+
+        int count = mDaoSession.getMessageDao().loadAll().size();
 
         return System.nanoTime() - start;
     }
